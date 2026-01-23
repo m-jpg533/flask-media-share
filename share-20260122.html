@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>台海軍情監測儀表板</title>
+<!-- Open Graph -->
+<meta property="og:title" content="台海軍情監測儀表板（公開展示）">
+<meta property="og:description" content="彙整國防部每日公開共機共艦資訊，地圖化展示">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://m-jpg533.github.io/oxs/share-20260122.html">
+<meta property="og:image" content="https://m-jpg533.github.io/oxs/preview-20260122.png">
+
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<style>
+body {
+  margin: 0;
+  background: #0b0f1a;
+  color: #e0e6ff;
+  font-family: Arial, sans-serif;
+}
+header {
+  padding: 16px;
+  text-align: center;
+  font-size: 22px;
+  background: #11162a;
+}
+#info {
+  display: flex;
+  justify-content: space-around;
+  padding: 12px;
+}
+.box {
+  background: #161c35;
+  padding: 12px 20px;
+  border-radius: 8px;
+}
+#map {
+  height: 70vh;
+}
+</style>
+</head>
+
+<body>
+
+<header>台海周邊共機共艦動態（公開展示）</header>
+
+<div id="info">
+  <div class="box">✈ 共機：<span id="air">-</span></div>
+  <div class="box">🚢 共艦：<span id="sea">-</span></div>
+  <div class="box">🕒 更新：<span id="time">-</span></div>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+
+const API = "https://army-air-api.a0917282565.workers.dev/";
+
+const map = L.map('map').setView([23.7, 121], 7);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'© OpenStreetMap'
+}).addTo(map);
+
+fetch(API)
+  .then(res => res.json())
+  .then(data => {
+
+    // ✅ 直接讀取你 API 實際存在的欄位
+    document.getElementById("air").textContent = data.aircraft;
+    document.getElementById("sea").textContent = data.vessels;
+    document.getElementById("time").textContent = data.updated;
+
+    // ✅ 顯示地圖標記
+    data.zones.forEach(z => {
+
+      let icon = "📍";
+      let label = "";
+      let count = 0;
+
+      if (z.air !== undefined) {
+        icon = "✈";
+        label = "共機";
+        count = z.air;
+      }
+
+      if (z.sea !== undefined) {
+        icon = "🚢";
+        label = "共艦";
+        count = z.sea;
+      }
+
+      L.marker([z.lat, z.lng]).addTo(map)
+        .bindPopup(`
+          ${icon} ${z.name}<br>
+          ${label} 數量：${count}
+        `);
+    });
+  })
+  .catch(err => {
+    console.error("API 讀取失敗", err);
+  });
+</script>
+
+</script>
+<div>資料來源：中華民國國防部每日公開資訊
+本網站僅進行資料彙整與視覺化展示，不代表官方立場
+所有資料皆非即時軍事行動資訊</div>
+</body>
+</html>
