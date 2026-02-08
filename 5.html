@@ -1,0 +1,377 @@
+<!--  <!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ppsd</title>
+
+<style>
+body, html, #app {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  touch-action: none;
+  background:#000;
+}
+
+
+#app {
+  font-family:
+    "Noto Sans TC",
+    "PingFang TC",
+    "Microsoft JhengHei",
+    "Heiti TC",
+    sans-serif;
+}
+
+#yt-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 1;          /* ⬅ 降到最底 */
+  pointer-events: none;
+}
+
+#app a {
+  text-decoration: none;
+  color: #fff;
+}
+.hero {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+  pointer-events: none;
+}
+
+
+
+
+h1, h2 {
+  margin: 0;
+  color: white;
+
+
+  text-shadow: 0 0 20px rgba(0, 0, 0, 1);
+  user-select: none;
+}
+
+h1 {
+  font-size: 30px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+h2 {
+  font-size: 30px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+#canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+
+
+
+#img {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+}
+/* 調整 img 的定位樣式，將其移至 #img 父容器處理 */
+/*
+img {
+  position: relative
+  top:50px;
+  right:50px;
+}
+*/
+</style>
+</head>
+
+<body>
+
+<div id="yt-wrap">
+  <iframe height="250" width="250"
+    id="yt-player"
+    src="https://www.youtube.com/embed/JcqhvPNiJzo?autoplay=1&loop=1&playlist=JcqhvPNiJzo&controls=0&rel=0&playsinline=1"
+    allow="autoplay; encrypted-media"
+    allowfullscreen>
+  </iframe>
+<div id="img">
+  <img height="50"width="50" src="https://profile.line-scdn.net/0h1X1mLUgtbnccFH-0gDQQCGxEbR0_ZTdlY3J0QyFBMUMkIi12ZCYhGXtGYkJyJiolNyF1GSESOEMQBxkRAkKSQxskMEAlIiEjMHIolA/preview
+"/>
+</div>
+</div>
+<div id="app">
+  <canvas id="canvas"></canvas>
+
+  <div class="hero">
+    <h1>隔壁小王</h1>
+    <h2>大帥</h2>
+    <a target="_blank" href="https://www.framer.com/marketplace/components/bokeh-background/">Framer Component</a>
+  </div>
+</div>
+
+
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
+
+let hueShift = 0;
+
+const dots = Array.from({ length: 150 }, () => ({
+  x: Math.random() * canvas.width,
+  y: Math.random() * canvas.height,
+  r: Math.random() * 80 + 40,
+  dx: (Math.random() - 0.5) * 1.5,
+  dy: (Math.random() * 1.5 + 0.5),
+  hue: Math.random() * 360
+}));
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // ⭐ 發光疊加模式
+  ctx.globalCompositeOperation = "lighter";
+
+  hueShift += 0.6;
+
+  for (const d of dots) {
+    d.x += d.dx;
+    d.y += d.dy;
+
+    if (d.x < -200 || d.x > canvas.width + 200) d.dx *= -1;
+    if (d.y < -200 || d.y > canvas.height + 200) d.dy *= -1;
+
+    const hue = (d.hue + hueShift) % 360;
+
+    const g = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r);
+    g.addColorStop(0, `hsla(${hue},100%,75%,0.75)`);
+    g.addColorStop(1, "transparent");
+
+    ctx.fillStyle = g;
+ctx.beginPath();
+ctx.fillStyle = `hsla(${hue},100%,85%,0.6)`;
+ctx.arc(d.x, d.y, d.r * 0.25, 0, Math.PI * 2);
+ctx.fill();
+  }
+
+  requestAnimationFrame(draw);
+}
+
+draw();
+</script>
+
+
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ppsd</title>
+
+<style>
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  font-family:
+    "Noto Sans TC",
+    "PingFang TC",
+    "Microsoft JhengHei",
+    sans-serif;
+}
+
+/* 🎬 YouTube 左上（靠右一點，讓 img 有位置） */
+#yt-wrap {
+  position: fixed;
+  top: 10px;
+  left: 50px;
+  z-index: 5;
+}
+
+iframe {
+  border-radius: 12px;
+}
+
+/* 🖼️ img 左上角 */
+#img {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 6;
+}
+
+#img img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  box-shadow:
+    0 0 15px rgba(255,255,255,0.9),
+    0 0 35px rgba(255,255,255,0.8);
+}
+
+/* 🌈 光明球 */
+#canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+}
+
+/* ✨ 中央文字 */
+.hero {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  text-align: center;
+}
+
+h1 {
+  margin: 0;
+  font-size: 36px;
+  color: gold;
+  text-shadow:
+    0 0 12px gold,
+    0 0 28px rgba(255,215,0,0.95);
+}
+
+h2 {
+  margin-top: 8px;
+  font-size: 24px;
+  color: #7CFF7C;
+  text-shadow:
+    0 0 12px #7CFF7C,
+    0 0 28px rgba(124,255,124,0.95);
+}
+</style>
+</head>
+
+<body>
+
+<!-- YouTube -->
+<div id="yt-wrap">
+  <iframe
+    width="250"
+    height="250"
+    src="https://www.youtube.com/embed/JcqhvPNiJzo?controls=1&playsinline=1&rel=0"
+    allow="autoplay; encrypted-media"
+    allowfullscreen>
+  </iframe>
+</div>
+
+<!-- img -->
+<div id="img">
+  <img src="https://images.pexels.com/photos/3171768/pexels-photo-3171768.jpeg">
+</div>
+
+<!-- 光明球 -->
+<canvas id="canvas"></canvas>
+
+<!-- 文字 -->
+<div class="hero">
+  <h1>恭賀新禧</h1>
+  <h2>農曆年快樂</h2>
+</div>
+
+<script>
+const canvas = document.getElementById("canvas")
+const ctx = canvas.getContext("2d")
+
+function resize() {
+  canvas.width = innerWidth
+  canvas.height = innerHeight
+}
+resize()
+addEventListener("resize", resize)
+
+/* ✨ 超清晰光明球 */
+class LightOrb {
+  constructor() {
+    this.reset()
+  }
+
+  reset() {
+    this.x = Math.random() * canvas.width
+    this.y = Math.random() * canvas.height
+    this.radius = 80 + Math.random() * 70
+    this.vx = (Math.random() - 0.5) * 1.4
+    this.vy = (Math.random() - 0.5) * 1.4
+    this.hue = Math.random() * 360
+  }
+
+  update() {
+    this.x += this.vx
+    this.y += this.vy
+    this.hue += 0.8
+
+    if (
+      this.x < -200 || this.x > canvas.width + 200 ||
+      this.y < -200 || this.y > canvas.height + 200
+    ) this.reset()
+  }
+
+  draw() {
+    const g = ctx.createRadialGradient(
+      this.x, this.y, 0,
+      this.x, this.y, this.radius
+    )
+
+    g.addColorStop(0, `hsla(${this.hue},100%,75%,1)`)
+    g.addColorStop(0.25, `hsla(${this.hue},100%,65%,0.75)`)
+    g.addColorStop(0.5, `hsla(${this.hue},100%,55%,0.4)`)
+    g.addColorStop(1, `hsla(${this.hue},100%,50%,0)`)
+
+    ctx.fillStyle = g
+    ctx.beginPath()
+    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
+    ctx.fill()
+  }
+}
+
+const orbs = Array.from({ length: 8 }, () => new LightOrb())
+
+function animate() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  orbs.forEach(o => {
+    o.update()
+    o.draw()
+  })
+  requestAnimationFrame(animate)
+}
+animate()
+</script>
+
+</body>
+</html>
