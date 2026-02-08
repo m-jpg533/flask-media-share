@@ -1,0 +1,383 @@
+<!--  <!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ppsd</title>
+
+<style>
+body, html, #app {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  touch-action: none;
+  background:#000;
+}
+
+
+#app {
+  font-family:
+    "Noto Sans TC",
+    "PingFang TC",
+    "Microsoft JhengHei",
+    "Heiti TC",
+    sans-serif;
+}
+
+#yt-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 1;          /* ⬅ 降到最底 */
+  pointer-events: none;
+}
+
+#app a {
+  text-decoration: none;
+  color: #fff;
+}
+.hero {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+  pointer-events: none;
+}
+
+
+
+
+h1, h2 {
+  margin: 0;
+  color: white;
+
+
+  text-shadow: 0 0 20px rgba(0, 0, 0, 1);
+  user-select: none;
+}
+
+h1 {
+  font-size: 30px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+h2 {
+  font-size: 30px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+#canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+
+
+
+#img {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+}
+/* 調整 img 的定位樣式，將其移至 #img 父容器處理 */
+/*
+img {
+  position: relative
+  top:50px;
+  right:50px;
+}
+*/
+</style>
+</head>
+
+<body>
+
+<div id="yt-wrap">
+  <iframe height="250" width="250"
+    id="yt-player"
+    src="https://www.youtube.com/embed/JcqhvPNiJzo?autoplay=1&loop=1&playlist=JcqhvPNiJzo&controls=0&rel=0&playsinline=1"
+    allow="autoplay; encrypted-media"
+    allowfullscreen>
+  </iframe>
+<div id="img">
+  <img height="50"width="50" src="https://profile.line-scdn.net/0h1X1mLUgtbnccFH-0gDQQCGxEbR0_ZTdlY3J0QyFBMUMkIi12ZCYhGXtGYkJyJiolNyF1GSESOEMQBxkRAkKSQxskMEAlIiEjMHIolA/preview
+"/>
+</div>
+</div>
+<div id="app">
+  <canvas id="canvas"></canvas>
+
+  <div class="hero">
+    <h1>隔壁小王</h1>
+    <h2>大帥</h2>
+    <a target="_blank" href="https://www.framer.com/marketplace/components/bokeh-background/">Framer Component</a>
+  </div>
+</div>
+
+
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
+
+let hueShift = 0;
+
+const dots = Array.from({ length: 150 }, () => ({
+  x: Math.random() * canvas.width,
+  y: Math.random() * canvas.height,
+  r: Math.random() * 80 + 40,
+  dx: (Math.random() - 0.5) * 1.5,
+  dy: (Math.random() * 1.5 + 0.5),
+  hue: Math.random() * 360
+}));
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // ⭐ 發光疊加模式
+  ctx.globalCompositeOperation = "lighter";
+
+  hueShift += 0.6;
+
+  for (const d of dots) {
+    d.x += d.dx;
+    d.y += d.dy;
+
+    if (d.x < -200 || d.x > canvas.width + 200) d.dx *= -1;
+    if (d.y < -200 || d.y > canvas.height + 200) d.dy *= -1;
+
+    const hue = (d.hue + hueShift) % 360;
+
+    const g = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, d.r);
+    g.addColorStop(0, `hsla(${hue},100%,75%,0.75)`);
+    g.addColorStop(1, "transparent");
+
+    ctx.fillStyle = g;
+ctx.beginPath();
+ctx.fillStyle = `hsla(${hue},100%,85%,0.6)`;
+ctx.arc(d.x, d.y, d.r * 0.25, 0, Math.PI * 2);
+ctx.fill();
+  }
+
+  requestAnimationFrame(draw);
+}
+
+draw();
+</script>
+
+
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ppsd</title>
+
+<style>
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  overflow: hidden;
+  font-family:
+    "Noto Sans TC",
+    "PingFang TC",
+    "Microsoft JhengHei",
+    "Heiti TC",
+    sans-serif;
+}
+
+/* 🎬 左上角影片 */
+#yt-wrap {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  width: 240px;
+  height: 135px;
+  z-index: 5;
+}
+
+#yt-wrap iframe {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  border: none;
+}
+
+/* ▶ 點擊播放遮罩（只在影片上） */
+#play-btn {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.6);
+  color: #fff;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+/* 🌈 光明球 */
+#canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ✨ 文字：畫面中間偏下 */
+.hero {
+  position: fixed;
+  left: 50%;
+  top: 65%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  text-align: center;
+  pointer-events: none;
+}
+
+h1, h2 {
+  margin: 0;
+  text-shadow: 0 0 20px rgba(0,0,0,1);
+}
+
+h1 {
+  font-size: 30px;
+  font-weight: 700;
+  color: gold;
+}
+
+h2 {
+  font-size: 30px;
+  font-weight: 500;
+  color: #00ff88;
+}
+
+/* 🖼️ 右上圖片 */
+#img {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 6;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🎬 左上角影片（點這裡才會播） -->
+<div id="yt-wrap">
+  <div id="play-btn">▶ 點擊播放</div>
+  <iframe
+    id="yt-player"
+    allow="autoplay; encrypted-media"
+    playsinline>
+  </iframe>
+</div>
+
+<div id="img">
+  <img width="90" height="90"
+    src="https://images.pexels.com/photos/3171768/pexels-photo-3171768.jpeg">
+</div>
+
+<canvas id="canvas"></canvas>
+
+<div class="hero">
+  <h1>恭賀新禧</h1>
+  <h2>農曆年快樂</h2>
+</div>
+
+<!-- ▶ 播放控制（只有點影片） -->
+<script>
+const btn = document.getElementById("play-btn");
+const yt = document.getElementById("yt-player");
+
+btn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  yt.src =
+    "https://www.youtube.com/embed/JcqhvPNiJzo" +
+    "?autoplay=1&mute=0&playsinline=1&controls=0";
+  btn.remove();
+});
+</script>
+
+<!-- 🌕 光明球動畫 -->
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+
+const canvas = document.getElementById("canvas");
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(devicePixelRatio);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.1, 100);
+camera.position.z = 10;
+
+const balls = [];
+const geo = new THREE.SphereGeometry(0.6, 32, 32);
+
+for (let i = 0; i < 14; i++) {
+  const mat = new THREE.MeshStandardMaterial({
+    color: new THREE.Color(`hsl(${Math.random()*360},100%,70%)`),
+    emissive: new THREE.Color(`hsl(${Math.random()*360},100%,60%)`),
+    emissiveIntensity: 2
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.set(
+    (Math.random()-0.5)*10,
+    (Math.random()-0.5)*10,
+    (Math.random()-0.5)*6
+  );
+  scene.add(mesh);
+  balls.push(mesh);
+}
+
+scene.add(new THREE.PointLight(0xffffff, 6));
+scene.add(new THREE.AmbientLight(0xffffff, 1.2));
+
+function animate() {
+  requestAnimationFrame(animate);
+  balls.forEach((b,i)=>{
+    b.position.x += Math.sin(Date.now()*0.001+i)*0.02;
+    b.position.y += Math.cos(Date.now()*0.001+i)*0.02;
+    b.rotation.x += 0.003;
+    b.rotation.y += 0.004;
+  });
+  renderer.render(scene, camera);
+}
+animate();
+
+addEventListener("resize", ()=>{
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+
+</body>
+</html>
