@@ -1,25 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colorful Fireworks</title>
 
+<style>
+body{
+  margin:0;
+  background:black;
+  overflow:hidden;
+  touch-action:none;
+}
+
+canvas{
+  position:absolute;
+  z-index:1;
+}
+
+/* 永遠在最上層 */
+#text{
+  position:fixed;
+  width:100%;
+  top:40%;
+  text-align:center;
+  font-size:48px;
+  color:gold;
+  font-weight:bold;
+  z-index:10;
+  animation: glow 1s infinite alternate;
+}
+
+@keyframes glow{
+  from{ text-shadow:0 0 10px gold; }
+  to{ text-shadow:0 0 30px yellow; }
+}
+
+/* 音樂按鈕 */
+#musicBtn{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  z-index:20;
+  padding:10px 15px;
+  font-size:16px;
+  border:none;
+  border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="text">🎆 初四快樂 🎆</div>
+<button id="musicBtn">🔊 音樂</button>
+
+<canvas id="fire"></canvas>
+
+<!-- 背景音樂（可替換 mp3 連結） -->
+<audio id="bgm" loop>
+  <source src="https://m-jpg533.github.io/flask-media-share/82.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const canvas = document.getElementById("fire");
+const ctx = canvas.getContext("2d");
+const bgm = document.getElementById("bgm");
+const musicBtn = document.getElementById("musicBtn");
+
+function resize(){
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
 
 let particles = [];
 
-function createFirework() {
+// 建立彩色煙火
+function createFirework(){
   let x = Math.random() * canvas.width;
   let y = Math.random() * canvas.height / 2;
+  let color = `hsl(${Math.random()*360},100%,50%)`;
 
-  for (let i = 0; i < 60; i++) {
+  for(let i=0;i<70;i++){
     particles.push({
       x, y,
-      vx: (Math.random() - 0.5) * 5,
-      vy: (Math.random() - 0.5) * 5,
-      life: 100
+      vx:(Math.random()-0.5)*6,
+      vy:(Math.random()-0.5)*6,
+      life:100,
+      color
     });
   }
 }
 
-function draw() {
+function draw(){
   ctx.fillStyle = "rgba(0,0,0,0.2)";
   ctx.fillRect(0,0,canvas.width,canvas.height);
 
   particles.forEach((p,i)=>{
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 2, 0, Math.PI*2);
+    ctx.arc(p.x,p.y,2,0,Math.PI*2);
+    ctx.fillStyle = p.color;
+    ctx.fill();
+
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life--;
+
+    if(p.life<=0) particles.splice(i,1);
+  });
+
+  requestAnimationFrame(draw);
+}
+
+setInterval(createFirework, 800);
+draw();
+
+// 點擊或觸控放煙火 + 播音樂（手機需互動才可播）
+function userFire(){
+  createFirework();
+  bgm.play().catch(()=>{});
+}
+canvas.addEventListener("click", userFire);
+canvas.addEventListener("touchstart", userFire);
+
+// 音樂開關
+musicBtn.onclick = ()=>{
+  if(bgm.paused){
+    bgm.play();
+    musicBtn.textContent = "🔊 音樂";
+  }else{
+    bgm.pause();
+    musicBtn.textContent = "🔇 靜音";
+  }
+};
+</script>
+
+</body>
+</html>
+
