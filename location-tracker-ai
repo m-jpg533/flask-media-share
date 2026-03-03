@@ -1,8 +1,0 @@
-location-tracker-ai/
-│
-├─ app.py
-├─ requirements.txt
-├─ templates/
-│    ├─ index.html
-│    └─ logs.html
-└─ location.db
