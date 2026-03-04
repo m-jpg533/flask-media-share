@@ -1,4 +1,4 @@
-location_tracker/
+location_tracker-ai/
 │
 ├─ app.py
 ├─ requirements.txt
