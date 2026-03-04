@@ -1,0 +1,8 @@
+location_tracker/
+│
+├─ app.py
+├─ requirements.txt
+├─ templates/
+│    ├─ index.html
+│    └─ logs.html
+└─ location.db
