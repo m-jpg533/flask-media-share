@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="utf-8">
+<title>GLOBAL WAR COMMAND CENTER</title>
+
+<script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
+<link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+
+<style>
+
+body{
+margin:0;
+background:black;
+color:#00ff9c;
+font-family:monospace;
+overflow:hidden;
+}
+
+#viewer{
+position:absolute;
+top:0;
+left:260px;
+right:260px;
+bottom:0;
+}
+
+.panel{
+position:absolute;
+top:0;
+bottom:0;
+width:260px;
+background:rgba(0,0,0,0.9);
+padding:10px;
+border:2px solid #00ff9c;
+}
+
+#left{left:0;border-right:0;}
+#right{right:0;border-left:0;}
+
+.title{
+font-size:20px;
+color:#00ffaa;
+margin-bottom:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="left" class="panel">
+
+<div class="title">戰情雷達</div>
+
+飛機數量: <span id="planes">0</span><br>
+衛星數量: <span id="sats">0</span><br>
+
+系統: ONLINE<br>
+雷達: ACTIVE<br>
+
+</div>
+
+<div id="viewer"></div>
+
+<div id="right" class="panel">
+
+<div class="title">目標資料</div>
+
+<div id="info">未選擇目標</div>
+
+</div>
+
+<script>
+
+/* 建立3D地球 */
+
+var viewer = new Cesium.Viewer("viewer",{
+
+animation:false,
+timeline:false,
+baseLayerPicker:false
+
+})
+
+/* 地圖圖層 */
+
+viewer.imageryLayers.removeAll()
+
+viewer.imageryLayers.addImageryProvider(
+
+new Cesium.OpenStreetMapImageryProvider({
+
+url:"https://tile.openstreetmap.org/"
+
+})
+
+)
+
+/* 開啟地球光照 */
+
+viewer.scene.globe.enableLighting=true
+
+viewer.camera.setView({
+
+destination:Cesium.Cartesian3.fromDegrees(90,25,25000000)
+
+})
+
+/* =========================
+飛機系統
+========================= */
+
+let planes=[]
+
+function addPlane(lat,lon,name){
+
+let plane = viewer.entities.add({
+
+position:Cesium.Cartesian3.fromDegrees(lon,lat,10000),
+
+billboard:{
+image:"https://cdn-icons-png.flaticon.com/512/34/34627.png",
+scale:0.03
+},
+
+label:{
+text:name,
+fillColor:Cesium.Color.LIME,
+font:"12px monospace",
+pixelOffset:new Cesium.Cartesian2(0,-20)
+},
+
+path:{
+resolution:1,
+material:Cesium.Color.LIME,
+width:2
+}
+
+})
+
+planes.push(plane)
+
+document.getElementById("planes").innerText=planes.length
+
+}
+
+/* =========================
+模擬飛機 (全球)
+========================= */
+
+for(let i=0;i<1500;i++){
+
+let lat
+let lon
+
+do{
+
+lat=(Math.random()*180)-90
+lon=(Math.random()*360)-180
+
+}while(lat>10 && lat<40 && lon>30 && lon<60)  //避開中東
+
+addPlane(lat,lon,"SIM-"+i)
+
+}
+
+/* =========================
+真實飛機 (中東)
+========================= */
+
+async function loadRealPlanes(){
+
+try{
+
+let res = await fetch("https://opensky-network.org/api/states/all")
+
+let data = await res.json()
+
+if(!data.states) return
+
+data.states.forEach(p=>{
+
+let lon = p[5]
+let lat = p[6]
+
+if(!lon || !lat) return
+
+/* 中東區域 */
+
+if(lat>10 && lat<40 && lon>30 && lon<60){
+
+addPlane(lat,lon,p[1] || "FLIGHT")
+
+}
+
+})
+
+}catch(e){
+
+console.log("API error")
+
+}
+
+}
+
+loadRealPlanes()
+
+setInterval(loadRealPlanes,60000)
+
+/* =========================
+飛機移動
+========================= */
+
+function movePlanes(){
+
+planes.forEach(p=>{
+
+let pos=p.position.getValue(Cesium.JulianDate.now())
+
+let carto=Cesium.Cartographic.fromCartesian(pos)
+
+let lat=Cesium.Math.toDegrees(carto.latitude)
+let lon=Cesium.Math.toDegrees(carto.longitude)
+
+lat+=Math.random()*0.5-0.25
+lon+=Math.random()*0.5-0.25
+
+p.position=Cesium.Cartesian3.fromDegrees(lon,lat,10000)
+
+})
+
+}
+
+setInterval(movePlanes,2000)
+
+/* =========================
+衛星系統
+========================= */
+
+let sats=[]
+
+function addSatellite(lat,lon){
+
+let sat=viewer.entities.add({
+
+position:Cesium.Cartesian3.fromDegrees(lon,lat,400000),
+
+billboard:{
+image:"https://cdn-icons-png.flaticon.com/512/3212/3212608.png",
+scale:0.12
+},
+
+path:{
+resolution:1,
+material:Cesium.Color.YELLOW,
+width:2
+}
+
+})
+
+sats.push(sat)
+
+document.getElementById("sats").innerText=sats.length
+
+}
+
+for(let i=0;i<8;i++){
+
+let lat=(Math.random()*180)-90
+let lon=(Math.random()*360)-180
+
+addSatellite(lat,lon)
+
+}
+
+function moveSat(){
+
+sats.forEach(s=>{
+
+let pos=s.position.getValue(Cesium.JulianDate.now())
+
+let carto=Cesium.Cartographic.fromCartesian(pos)
+
+let lat=Cesium.Math.toDegrees(carto.latitude)
+let lon=Cesium.Math.toDegrees(carto.longitude)
+
+lon+=0.8
+
+s.position=Cesium.Cartesian3.fromDegrees(lon,lat,400000)
+
+})
+
+}
+
+setInterval(moveSat,1000)
+
+</script>
+
+</body>
+</html>
