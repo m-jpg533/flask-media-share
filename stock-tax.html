@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>股票淨利計算器</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+  input { padding: 5px; margin: 5px; width: 150px; }
+  button { padding: 5px 10px; margin: 5px; }
+  .result { margin-top: 10px; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h2>股票淨利計算器</h2>
+
+<label>買入金額 (B)：</label>
+<input type="number" id="buyAmount" placeholder="輸入買入金額"><br>
+
+<label>賣出金額 (S)：</label>
+<input type="number" id="sellAmount" placeholder="輸入賣出金額"><br>
+
+<button onclick="calculateProfit()">計算淨利</button>
+
+<div class="result" id="result"></div>
+
+<script>
+function calculateProfit() {
+  const B = parseFloat(document.getElementById('buyAmount').value);
+  const S = parseFloat(document.getElementById('sellAmount').value);
+
+  if(isNaN(B) || isNaN(S) || B <=0 || S <=0){
+    document.getElementById('result').innerText = "請輸入正確的買入與賣出金額！";
+    return;
+  }
+
+  const feeRate = 0.001425; // 手續費率
+  const taxRate = 0.003;    // 交易稅率（賣出收）
+
+  const buyFee = B * feeRate;
+  const sellFee = S * feeRate;
+  const sellTax = S * taxRate;
+
+  const netProfit = S - B - buyFee - sellFee - sellTax;
+
+  document.getElementById('result').innerText = 
+    `淨利：約 ${netProfit.toFixed(2)} 元\n(手續費買：${buyFee.toFixed(2)} 元，賣：${sellFee.toFixed(2)} 元，交易稅：${sellTax.toFixed(2)} 元)`;
+}
+</script>
+
+</body>
+</html>
